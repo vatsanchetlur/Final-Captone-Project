@@ -4,17 +4,17 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-"start": "node server.js",
-"mongodb": "C:/Software/MongoDB/Server/6.0/bin/mongod",
-"mongosh": "C:/Software/mongosh/mongosh-1.8.0-win32-x64/bin/mongosh"
-},
+    "start": "node server.js",
+    "mongodb": "C:/Software/MongoDB/Server/6.0/bin/mongod",
+    "mongosh": "C:/Software/mongosh/mongosh-1.8.0-win32-x64/bin/mongosh"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "mongodb": "^6.17.0"
   }
-  
 }
