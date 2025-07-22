@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "mongodb": "C:/Software/MongoDB/Server/6.0/bin/mongod",
-    "mongosh": "C:/Software/mongosh/mongosh-1.8.0-win32-x64/bin/mongosh"
+    "mongodb": "/usr/local/bin/mongod",
+    "mongosh": "/usr/local/bin/mongosh"
   },
   "keywords": [],
   "author": "",
