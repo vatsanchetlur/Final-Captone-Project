@@ -1,8 +1,9 @@
 import express from "express";
 import env from "../../../config.js";
 
+
 const router = express.Router();
-const apiKey = env.API_KEY;
+const apiKey = ""
 if(!apiKey){
   console.log("Please set the API_KEY environment variable with a valid newsapi.org apiKey and restart the server!");
   process.exit(0);
@@ -10,6 +11,7 @@ if(!apiKey){
 const baseUrl = 'https://newsapi.org/v2/top-headlines';
 
 function addApiKey(queryObject){
+    const baseUrl = 'https://newsapi.org/v2/top-headlines';
     return {...queryObject, apiKey: apiKey}
 }
 
@@ -18,6 +20,7 @@ export function createUrlFromQueryObject(queryObjectWithApiKey) {
     const url = baseUrl + "?" + queryString;
     return url;
 }
+
 
 export async function fetchData(url) {
     let data = null;
