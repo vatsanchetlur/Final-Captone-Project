@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend API Test Cases</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-case {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #fafafa;
+        }
+        .method {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .method.post {
+            background: #ffc107;
+            color: #212529;
+        }
+        .endpoint {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            border: 1px solid #dee2e6;
+        }
+        .description {
+            margin: 10px 0;
+            color: #666;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Backend API Test Cases</h1>
+        
+        <div class="test-case">
+            <h3>
+                <span class="method">GET</span>
+                <span class="endpoint">http://localhost:4000/news</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> Returns top headlines from NewsAPI.org with a fixed query (US news)
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> JSON object containing news articles array with title, description, url, etc.
+            </div>
+            <button class="test-button" onclick="testGetNews()">Test API</button>
+            <div id="news-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method">GET</span>
+                <span class="endpoint">http://localhost:4000/news</span>
+                <span style="color: #dc3545; font-size: 14px; margin-left: 10px;">(Missing API_KEY)</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> GET /news with missing API_KEY fails - Should refuse to run and output error
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> Server should refuse to start or return an error message
+            </div>
+            <div class="description">
+                <strong>Note:</strong> This test simulates the server behavior when API_KEY is not configured
+            </div>
+            <button class="test-button" onclick="testGetNewsNoAPI()">Test API (No Key)</button>
+            <div id="news-no-api-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method" style="background: #ffc107; color: #212529;">POST</span>
+                <span class="endpoint">http://localhost:4000/news</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> POST /news returns articles for provided query - Given a valid queryObject, should return news results
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> JSON object with news articles matching the custom query
+            </div>
+            <div class="description">
+                <strong>Test Query:</strong> <code>{"q": "technology", "country": "us", "pageSize": 5}</code>
+            </div>
+            <button class="test-button" onclick="testPostNews()">Test API</button>
+            <div id="post-news-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method">GET</span>
+                <span class="endpoint">http://localhost:4000/users</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> GET /users returns user list - Should return all users without passwords
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> JSON array of user objects with user and email fields (no password field)
+            </div>
+            <button class="test-button" onclick="testGetUsers()">Test API</button>
+            <div id="users-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method post">POST</span>
+                <span class="endpoint">http://localhost:4000/users/authenticate</span>
+                <span style="color: #28a745; font-size: 14px; margin-left: 10px;">(Correct Credentials)</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> POST /users/authenticate (correct credentials) returns 200 - Should authenticate and return "user passed authentication!"
+            </div>
+            <div class="description">
+                <strong>Test Credentials:</strong> <code>{"user": "admin", "password": "admin"}</code>
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> Status 200 with "user passed authentication!" message
+            </div>
+            <button class="test-button" onclick="testAuthCorrect()">Test API</button>
+            <div id="auth-correct-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method post">POST</span>
+                <span class="endpoint">http://localhost:4000/users/authenticate</span>
+                <span style="color: #dc3545; font-size: 14px; margin-left: 10px;">(Incorrect Username)</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> POST /users/authenticate (incorrect username) returns 401 - Should return 401 for a non-existent user
+            </div>
+            <div class="description">
+                <strong>Test Credentials:</strong> <code>{"user": "nonexistent", "password": "admin"}</code>
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> Status 401 with "unauthorized: user not found" message
+            </div>
+            <button class="test-button" onclick="testAuthWrongUser()">Test API</button>
+            <div id="auth-wrong-user-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method post">POST</span>
+                <span class="endpoint">http://localhost:4000/users/authenticate</span>
+                <span style="color: #dc3545; font-size: 14px; margin-left: 10px;">(Incorrect Password)</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> POST /users/authenticate (incorrect password) returns 401 - Should return 401 for an incorrect password
+            </div>
+            <div class="description">
+                <strong>Test Credentials:</strong> <code>{"user": "admin", "password": "wrongpassword"}</code>
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> Status 401 with "unauthorized: bad password" message
+            </div>
+            <button class="test-button" onclick="testAuthWrongPassword()">Test API</button>
+            <div id="auth-wrong-password-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method post">POST</span>
+                <span class="endpoint">http://localhost:4000/queries</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> POST /queries persists query list - Should save a query list to queries.json and return a success message
+            </div>
+            <div class="description">
+                <strong>Test Data:</strong> <code>[{"queryName": "Test Query", "q": "nodejs", "country": "us"}]</code>
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> Status 200 with "query array saved" message
+            </div>
+            <button class="test-button" onclick="testPostQueries()">Test API</button>
+            <div id="post-queries-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method">GET</span>
+                <span class="endpoint">http://localhost:4000/queries</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> GET /queries returns saved query list - Should return the JSON array saved by the last POST
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> JSON array containing the queries saved in queries.json
+            </div>
+            <button class="test-button" onclick="testGetQueries()">Test API</button>
+            <div id="get-queries-response" class="response"></div>
+        </div>
+
+        <div class="test-case">
+            <h3>
+                <span class="method post">POST</span>
+                <span class="endpoint">http://localhost:4000/queries</span>
+                <span style="color: #dc3545; font-size: 14px; margin-left: 10px;">(Invalid Data)</span>
+            </h3>
+            <div class="description">
+                <strong>Description:</strong> POST /queries with invalid data returns 500 - Should return a server error if data is malformed
+            </div>
+            <div class="description">
+                <strong>Test Data:</strong> <code>"invalid json string"</code> (not an array/object)
+            </div>
+            <div class="description">
+                <strong>Expected Response:</strong> Status 500 with error message
+            </div>
+            <button class="test-button" onclick="testPostQueriesInvalid()">Test API</button>
+            <div id="post-queries-invalid-response" class="response"></div>
+        </div>
+
+        <!-- Comprehensive Test Checklist -->
+        <div class="test-case" style="border: 2px solid #28a745; border-radius: 8px; margin: 25px 0; background: #f8fff8;">
+            <h2 style="background: #28a745; color: white; margin: 0; padding: 15px; font-size: 18px;">
+                📋 Comprehensive Backend API Test Checklist
+            </h2>
+            <div style="padding: 20px;">
+                <h3 style="color: #333; margin-top: 0;">Complete Backend Test Sequence <span style="background: #ffc107; color: #212529; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-left: 10px;">SYSTEMATIC</span></h3>
+                <div class="description">
+                    <strong>Complete Test Sequence:</strong> Follow this checklist to test all backend API functionality systematically.
+                </div>
+                
+                <div style="background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 4px; padding: 10px; margin: 10px 0; color: #0c5460;">
+                    <strong>Prerequisites:</strong> 
+                    <ul style="margin: 5px 0;">
+                        <li>Backend server running on <code>localhost:4000</code></li>
+                        <li>Valid NewsAPI.org API key in <code>.env</code> file</li>
+                        <li>MongoDB connection working (if using database)</li>
+                        <li>CORS properly configured for cross-origin requests</li>
+                    </ul>
+                </div>
+
+                <div style="background: #f8f9fa; border-left: 4px solid #6c757d; padding: 15px; margin: 15px 0; border-radius: 4px;">
+                    <strong>📊 Full Backend API Test Checklist:</strong>
+                    <ol style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
+                        <li><strong>🗞️ News API Endpoints:</strong>
+                            <ul>
+                                <li>✅ Test GET /news (default query) - Should return US news articles</li>
+                                <li>✅ Test GET /news without API_KEY - Should fail gracefully</li>
+                                <li>✅ Test POST /news (custom query) - Should return articles for specific search</li>
+                                <li>✅ Verify response format includes articles array, totalResults, status</li>
+                                <li>✅ Check articles contain title, description, url, publishedAt fields</li>
+                            </ul>
+                        </li>
+                        <li><strong>👥 User Authentication Endpoints:</strong>
+                            <ul>
+                                <li>✅ Test GET /users - Should return user list without passwords</li>
+                                <li>✅ Test POST /users/authenticate (correct credentials) - Should return 200</li>
+                                <li>✅ Test POST /users/authenticate (wrong username) - Should return 401</li>
+                                <li>✅ Test POST /users/authenticate (wrong password) - Should return 401</li>
+                                <li>✅ Verify authentication responses contain proper status messages</li>
+                            </ul>
+                        </li>
+                        <li><strong>🔍 Query Management Endpoints:</strong>
+                            <ul>
+                                <li>✅ Test GET /queries - Should return saved query array</li>
+                                <li>✅ Test POST /queries (valid data) - Should save queries and return success</li>
+                                <li>✅ Test POST /queries (invalid data) - Should return 500 error</li>
+                                <li>✅ Verify queries persist in queries.json file</li>
+                                <li>✅ Test query data structure validation</li>
+                            </ul>
+                        </li>
+                        <li><strong>🛡️ Error Handling & Edge Cases:</strong>
+                            <ul>
+                                <li>✅ Test malformed JSON requests</li>
+                                <li>✅ Test missing required parameters</li>
+                                <li>✅ Test server response when API_KEY is missing</li>
+                                <li>✅ Verify proper HTTP status codes for all scenarios</li>
+                                <li>✅ Check error messages are descriptive and helpful</li>
+                            </ul>
+                        </li>
+                        <li><strong>🔒 Security & Configuration:</strong>
+                            <ul>
+                                <li>✅ Verify CORS headers allow frontend requests</li>
+                                <li>✅ Test SSL certificate handling (if applicable)</li>
+                                <li>✅ Ensure sensitive data (passwords) not exposed in responses</li>
+                                <li>✅ Verify environment variable loading works correctly</li>
+                            </ul>
+                        </li>
+                        <li><strong>📈 Performance & Data Validation:</strong>
+                            <ul>
+                                <li>✅ Test response times are reasonable (&lt;5 seconds)</li>
+                                <li>✅ Verify JSON response formatting is consistent</li>
+                                <li>✅ Test with various query parameters and data sizes</li>
+                                <li>✅ Ensure proper content-type headers in all responses</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+
+                <div style="background: #e8f5e8; border-left: 4px solid #28a745; padding: 10px; margin: 10px 0; border-radius: 4px;">
+                    <strong>🎯 Success Criteria:</strong>
+                    <ul style="margin: 5px 0;">
+                        <li>All API endpoints return expected status codes</li>
+                        <li>Response data structures match specifications</li>
+                        <li>Error handling works correctly for invalid inputs</li>
+                        <li>Authentication logic functions properly</li>
+                        <li>Data persistence works for query management</li>
+                        <li>NewsAPI integration returns real news articles</li>
+                        <li>No server crashes or unhandled exceptions</li>
+                    </ul>
+                </div>
+
+                <div style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px; padding: 10px; margin: 10px 0; color: #856404;">
+                    <strong>⚠️ Common Issues to Watch For:</strong>
+                    <ul style="margin: 5px 0;">
+                        <li>CORS errors when testing from different origins</li>
+                        <li>SSL certificate issues with NewsAPI requests</li>
+                        <li>Missing or invalid API_KEY configuration</li>
+                        <li>JSON parsing errors with malformed request bodies</li>
+                        <li>File permission issues with queries.json</li>
+                        <li>Port conflicts if backend isn't running on 4000</li>
+                    </ul>
+                </div>
+
+                <div style="text-align: center; margin-top: 20px;">
+                    <button class="test-button" onclick="runAllTests()" style="background: #28a745; font-size: 16px; padding: 12px 24px;">
+                        🚀 Run All Backend Tests
+                    </button>
+                    <button class="test-button" onclick="resetAllTests()" style="background: #6c757d; font-size: 16px; padding: 12px 24px; margin-left: 10px;">
+                        🔄 Reset All Tests
+                    </button>
+                </div>
+
+                <div id="test-progress" style="margin-top: 20px; display: none;">
+                    <h4>Test Progress:</h4>
+                    <div id="progress-bar" style="width: 100%; background-color: #f0f0f0; border-radius: 5px;">
+                        <div id="progress-fill" style="width: 0%; height: 20px; background-color: #28a745; border-radius: 5px; transition: width 0.3s;"></div>
+                    </div>
+                    <div id="progress-text" style="text-align: center; margin-top: 5px;">0% Complete</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="http://localhost:3000">← Back to NewsDash App</a>
+            <a href="frontend-tests.html">Frontend UI Tests</a>
+        </div>
+    </div>
+
+    <script>
+        async function testGetNews() {
+            const responseDiv = document.getElementById('news-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('http://localhost:4000/news');
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Content-Type:</strong> ${contentType || 'Not specified'}<br>
+                    <strong>Response Size:</strong> ${JSON.stringify(data).length} characters<br>
+                    <strong>Response:</strong><br>
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;">${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testGetNewsNoAPI() {
+            const responseDiv = document.getElementById('news-no-api-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = `
+                <strong>Test Explanation:</strong><br>
+                This test demonstrates what happens when API_KEY is missing from the environment.<br><br>
+                <strong>Current Server Status:</strong><br>
+                - The server is currently running WITH a valid API_KEY<br>
+                - If the API_KEY was missing, the server would exit with: <br>
+                <span style="color: red;">"Please set the API_KEY environment variable with a valid newsapi.org apiKey and restart the server!"</span><br><br>
+                <strong>To truly test this:</strong><br>
+                1. Remove API_KEY from .env file<br>
+                2. Restart server - it will refuse to start<br>
+                3. Server process will exit with code 0
+            `;
+        }
+
+        async function testPostNews() {
+            const responseDiv = document.getElementById('post-news-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            const testQuery = {
+                "q": "technology", 
+                "country": "us", 
+                "pageSize": 5
+            };
+            
+            try {
+                const response = await fetch('http://localhost:4000/news', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testQuery)
+                });
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Request Body:</strong> ${JSON.stringify(testQuery)}<br>
+                    <strong>Content-Type:</strong> ${contentType || 'Not specified'}<br>
+                    <strong>Articles Found:</strong> ${data?.totalResults || 'N/A'}<br>
+                    <strong>Response:</strong><br>
+                    <pre style="white-space: pre-wrap; word-wrap: break-word; max-height: 400px; overflow-y: auto;">${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testGetUsers() {
+            const responseDiv = document.getElementById('users-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('http://localhost:4000/users');
+                
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    data = await response.text();
+                }
+                
+                // Check if passwords are included (they shouldn't be)
+                let passwordCheck = '';
+                if (Array.isArray(data) && data.length > 0) {
+                    const hasPasswords = data.some(user => user.hasOwnProperty('password'));
+                    passwordCheck = hasPasswords ? 
+                        '<br><span style="color: red;">⚠️ WARNING: Passwords are exposed in response!</span>' :
+                        '<br><span style="color: green;">✅ Good: No passwords in response</span>';
+                }
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>User Count:</strong> ${Array.isArray(data) ? data.length : 'N/A'}<br>
+                    <strong>Content-Type:</strong> ${contentType || 'Not specified'}<br>
+                    ${passwordCheck}
+                    <strong>Response:</strong><br>
+                    <pre style="white-space: pre-wrap; word-wrap: break-word;">${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testAuthCorrect() {
+            const responseDiv = document.getElementById('auth-correct-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            const credentials = {
+                "user": "admin",
+                "password": "admin"
+            };
+            
+            try {
+                const response = await fetch('http://localhost:4000/users/authenticate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(credentials)
+                });
+                
+                const data = await response.text(); // Expecting text response
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Request Body:</strong> ${JSON.stringify(credentials)}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${data}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testAuthWrongUser() {
+            const responseDiv = document.getElementById('auth-wrong-user-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            const credentials = {
+                "user": "nonexistent",
+                "password": "admin"
+            };
+            
+            try {
+                const response = await fetch('http://localhost:4000/users/authenticate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(credentials)
+                });
+                
+                const data = await response.text();
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Request Body:</strong> ${JSON.stringify(credentials)}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${data}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testAuthWrongPassword() {
+            const responseDiv = document.getElementById('auth-wrong-password-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            const credentials = {
+                "user": "admin",
+                "password": "wrongpassword"
+            };
+            
+            try {
+                const response = await fetch('http://localhost:4000/users/authenticate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(credentials)
+                });
+                
+                const data = await response.text();
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Request Body:</strong> ${JSON.stringify(credentials)}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${data}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testPostQueries() {
+            const responseDiv = document.getElementById('post-queries-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            const testData = [
+                {
+                    "queryName": "Test Query",
+                    "q": "nodejs",
+                    "country": "us",
+                    "pageSize": 10
+                }
+            ];
+            
+            try {
+                const response = await fetch('http://localhost:4000/queries', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(testData)
+                });
+                
+                const data = await response.text();
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Request Body:</strong> ${JSON.stringify(testData, null, 2)}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${data}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testGetQueries() {
+            const responseDiv = document.getElementById('get-queries-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('http://localhost:4000/queries');
+                const data = await response.json();
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Query Count:</strong> ${Array.isArray(data) ? data.length : 'N/A'}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        async function testPostQueriesInvalid() {
+            const responseDiv = document.getElementById('post-queries-invalid-response');
+            responseDiv.style.display = 'block';
+            responseDiv.innerHTML = 'Loading...';
+            
+            const invalidData = "invalid json string"; // This should cause an error
+            
+            try {
+                const response = await fetch('http://localhost:4000/queries', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(invalidData)
+                });
+                
+                const data = await response.text();
+                
+                responseDiv.innerHTML = `
+                    <strong>Status:</strong> ${response.status} ${response.statusText}<br>
+                    <strong>Request Body:</strong> ${JSON.stringify(invalidData)}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${data}</pre>
+                    <br><span style="color: ${response.status >= 500 ? 'green' : 'orange'};">
+                    ${response.status >= 500 ? '✅ Correctly returned server error' : '⚠️ Expected 500 error but got ' + response.status}
+                    </span>
+                `;
+            } catch (error) {
+                responseDiv.innerHTML = `
+                    <strong>Error:</strong> ${error.message}<br>
+                    <span style="color: red;">Make sure the backend server is running on localhost:4000</span>
+                `;
+            }
+        }
+
+        // Comprehensive test runner functions
+        async function runAllTests() {
+            const progressDiv = document.getElementById('test-progress');
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            
+            progressDiv.style.display = 'block';
+            
+            const testFunctions = [
+                { name: 'GET /news', func: testGetNews },
+                { name: 'GET /news (No API)', func: testGetNewsNoAPI },
+                { name: 'POST /news', func: testPostNews },
+                { name: 'GET /users', func: testGetUsers },
+                { name: 'AUTH (Correct)', func: testAuthCorrect },
+                { name: 'AUTH (Wrong User)', func: testAuthWrongUser },
+                { name: 'AUTH (Wrong Password)', func: testAuthWrongPassword },
+                { name: 'POST /queries', func: testPostQueries },
+                { name: 'GET /queries', func: testGetQueries },
+                { name: 'POST /queries (Invalid)', func: testPostQueriesInvalid }
+            ];
+            
+            for (let i = 0; i < testFunctions.length; i++) {
+                const test = testFunctions[i];
+                progressText.innerHTML = `Running: ${test.name}... (${i + 1}/${testFunctions.length})`;
+                
+                try {
+                    await test.func();
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second between tests
+                } catch (error) {
+                    console.error(`Test ${test.name} failed:`, error);
+                }
+                
+                const progress = ((i + 1) / testFunctions.length) * 100;
+                progressFill.style.width = progress + '%';
+                progressText.innerHTML = `${Math.round(progress)}% Complete (${i + 1}/${testFunctions.length} tests)`;
+            }
+            
+            progressText.innerHTML = '✅ All tests completed! Check results above.';
+            
+            // Scroll to top to see results
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetAllTests() {
+            // Hide all response divs
+            const responseDivs = document.querySelectorAll('.response');
+            responseDivs.forEach(div => {
+                div.style.display = 'none';
+                div.innerHTML = '';
+            });
+            
+            // Hide progress
+            const progressDiv = document.getElementById('test-progress');
+            progressDiv.style.display = 'none';
+            
+            // Reset progress bar
+            const progressFill = document.getElementById('progress-fill');
+            const progressText = document.getElementById('progress-text');
+            progressFill.style.width = '0%';
+            progressText.innerHTML = '0% Complete';
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            alert('All test results have been cleared. Ready for fresh testing!');
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch(event.key) {
+                    case 'r':
+                        event.preventDefault();
+                        runAllTests();
+                        break;
+                    case 'c':
+                        event.preventDefault();
+                        resetAllTests();
+                        break;
+                }
+            }
+        });
+
+        // Show keyboard shortcuts hint
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const hint = document.createElement('div');
+                hint.style.position = 'fixed';
+                hint.style.bottom = '20px';
+                hint.style.right = '20px';
+                hint.style.background = '#343a40';
+                hint.style.color = 'white';
+                hint.style.padding = '10px';
+                hint.style.borderRadius = '5px';
+                hint.style.fontSize = '12px';
+                hint.style.zIndex = '1000';
+                hint.innerHTML = 'Keyboard shortcuts:<br>Ctrl+R: Run all tests<br>Ctrl+C: Clear tests';
+                document.body.appendChild(hint);
+                
+                setTimeout(() => {
+                    if (hint.parentNode) {
+                        hint.style.opacity = '0.3';
+                    }
+                }, 5000);
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
