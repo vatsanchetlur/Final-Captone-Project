@@ -8,73 +8,254 @@ export function QueryForm(params) {
 
     function onSubmitClick(event) {
         event.preventDefault();
-        if (!params.formObject.queryName) {
-            alert("please provide a name for the query!");
+        
+        // Check if user is logged in for creation
+        if (!params.currentUser) {
+            alert("Please log in to create new searches");
             return;
         }
-        if (!params.formObject.q || params.formObject.q.length === 0) {
-            alert("please provide some text for the query field!");
+
+        // Validation
+        if (!params.formObject.queryName || params.formObject.queryName.trim() === '') {
+            alert("Please provide a name for the search");
             return;
         }
+
+        // NewsAPI parameter validation
+        const hasKeywords = params.formObject.q && params.formObject.q.trim().length > 0;
+        const hasCountry = params.formObject.country && params.formObject.country.trim().length > 0;
+        const hasCategory = params.formObject.category && params.formObject.category.trim().length > 0;
+
+        // Check for invalid combinations
+        if (hasKeywords && hasCountry) {
+            alert("NewsAPI doesn't allow combining search keywords with country. Please use either keywords OR country+category, but not both.");
+            return;
+        }
+
+        // Must have either keywords OR country (with optional category)
+        if (!hasKeywords && !hasCountry) {
+            alert("Please provide either search keywords OR select a country for headlines");
+            return;
+        }
+
+        // Check guest user limits (assuming non-admin users are guests)
+        if (!isAdmin) {
+            // Note: Guest limit checking would need to be implemented
+            // based on saved queries count - this is just a placeholder
+            // The actual implementation would check the savedQueries array length
+        }
+
         params.submitToParent(params.formObject);
     };
 
     function currentUserIsAdmin(){
-            if(params.currentUser){
-                if(params.currentUser.user){
-                    if(params.currentUser.user === "admin"){
-                        return true;
-                        }
-                    }
-                }
-                return false;
+        if(params.currentUser){
+            // Handle both string and object formats
+            if(typeof params.currentUser === 'string'){
+                return params.currentUser === "admin";
+            }
+            if(params.currentUser.user){
+                return params.currentUser.user === "admin";
+            }
+        }
+        return false;
     }
 
+    // Helper function to get user display name
+    const getUserDisplayName = (currentUser) => {
+        if (!currentUser) return '';
+        if (typeof currentUser === 'string') return currentUser;
+        if (currentUser.user) return currentUser.user;
+        return 'User';
+    };
+
+    const isLoggedIn = Boolean(params.currentUser);
+    const isAdmin = currentUserIsAdmin();
+    const userDisplayName = getUserDisplayName(params.currentUser);
 
     return (
-        <div>
-            <form>
-                <div>
-                    <label htmlFor="queryName">Query Name: </label>
-                    <input type="text" size={10} id="queryName" name="queryName" value={params.formObject.queryName} onChange={handleChange} />
+        <div className="query-form">
+            <form onSubmit={onSubmitClick}>
+                {/* Basic Fields */}
+                <div className="form-group">
+                    <label htmlFor="queryName">Search Name</label>
+                    <input 
+                        type="text" 
+                        id="queryName" 
+                        name="queryName" 
+                        value={params.formObject.queryName || ''} 
+                        onChange={handleChange}
+                        placeholder="Enter a memorable name for your search"
+                        disabled={!isLoggedIn}
+                    />
                 </div>
-                <div>
-                    <label htmlFor="q">Query Text: </label>
-                    <input type="text" size={10} id="q" name="q" value={params.formObject.q} onChange={handleChange} />
-                </div>
-                <div className={currentUserIsAdmin() ? "visible" : "hidden"}
-                     style={{border: "solid black 1px"}}>
-                    {/* Extra fields */}
-                    <div>
-                        <label htmlFor="language">Language: </label>
-                        <select id="language" name="language" value={params.formObject.language} onChange={handleChange}>
-                            <option value="">All</option>
-                            <option value="en">English</option>
-                            <option value="es">Spanish</option>
-                            <option value="fr">French</option>
-                            <option value="de">German</option>
-                            {/* Add options for specific languages (e.g., en, es, fr) */}
-                        </select>
-                    </div>
 
-                    <div>
-                        <label htmlFor="pageSize">Page Size: </label>
-                        <input
-                            type="number"
-                            id="pageSize"
-                            name="pageSize"
-                            min={1}
-                            max={100}
-                            value={params.formObject.pageSize}
-                            onChange={handleChange}
-                        />
-                    </div>
+                <div className="form-group">
+                    <label htmlFor="q">Search Keywords</label>
+                    <input 
+                        type="text" 
+                        id="q" 
+                        name="q" 
+                        value={params.formObject.q || ''} 
+                        onChange={handleChange}
+                        placeholder="e.g., artificial intelligence, climate change, sports"
+                        disabled={!isLoggedIn}
+                    />
+                    <small className="field-help">
+                        Use this for global keyword search. Cannot be combined with country/category.
+                    </small>
                 </div>
-                <span style={{ display: "block", backgroundColor: "#eee" }}>
-                    <input type="button" value="Submit" onClick={onSubmitClick} />
-                </span>                
+
+                <div className="form-section-divider">
+                    <span>OR</span>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="country">Country Headlines</label>
+                    <select 
+                        id="country" 
+                        name="country" 
+                        value={params.formObject.country || ''} 
+                        onChange={handleChange}
+                        disabled={!isLoggedIn}
+                    >
+                        <option value="">Select a country for top headlines</option>
+                        <option value="us">United States</option>
+                        <option value="gb">United Kingdom</option>
+                        <option value="ca">Canada</option>
+                        <option value="au">Australia</option>
+                        <option value="de">Germany</option>
+                        <option value="fr">France</option>
+                        <option value="in">India</option>
+                        <option value="jp">Japan</option>
+                    </select>
+                    <small className="field-help">
+                        Get top headlines from a specific country. Can be combined with category below.
+                    </small>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="category">Category (Optional)</label>
+                    <select 
+                        id="category" 
+                        name="category" 
+                        value={params.formObject.category || ''} 
+                        onChange={handleChange}
+                        disabled={!isLoggedIn || !params.formObject.country}
+                    >
+                        <option value="">All Categories</option>
+                        <option value="business">Business</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="general">General</option>
+                        <option value="health">Health</option>
+                        <option value="science">Science</option>
+                        <option value="sports">Sports</option>
+                        <option value="technology">Technology</option>
+                    </select>
+                    <small className="field-help">
+                        Filter country headlines by category. Only works with country selection.
+                    </small>
+                </div>
+
+                {/* Admin-Only Advanced Fields */}
+                {isAdmin && (
+                    <div className="admin-panel">
+                        <div className="admin-panel-header">
+                            � Advanced Search Options
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="language">Language</label>
+                            <select 
+                                id="language" 
+                                name="language" 
+                                value={params.formObject.language || ''} 
+                                onChange={handleChange}
+                            >
+                                <option value="">All Languages</option>
+                                <option value="en">English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="it">Italian</option>
+                                <option value="pt">Portuguese</option>
+                                <option value="ru">Russian</option>
+                                <option value="zh">Chinese</option>
+                            </select>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="pageSize">Articles Per Page</label>
+                            <input
+                                type="number"
+                                id="pageSize"
+                                name="pageSize"
+                                min={1}
+                                max={100}
+                                value={params.formObject.pageSize || 20}
+                                onChange={handleChange}
+                                placeholder="Number of articles (1-100)"
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="sortBy">Sort By</label>
+                            <select 
+                                id="sortBy" 
+                                name="sortBy" 
+                                value={params.formObject.sortBy || ''} 
+                                onChange={handleChange}
+                            >
+                                <option value="">Relevancy</option>
+                                <option value="publishedAt">Published Date</option>
+                                <option value="popularity">Popularity</option>
+                            </select>
+                        </div>
+                    </div>
+                )}
+
+                {/* Login Status Message */}
+                {!isLoggedIn && (
+                    <div style={{
+                        background: '#fff3cd',
+                        border: '1px solid #ffeaa7',
+                        color: '#856404',
+                        padding: '1rem',
+                        borderRadius: '0',
+                        marginTop: '1rem',
+                        textAlign: 'center'
+                    }}>
+                        Please log in to create new searches
+                    </div>
+                )}
+
+                {/* Submit Button */}
+                <button 
+                    type="submit" 
+                    className="submit-btn"
+                    disabled={!isLoggedIn}
+                >
+                    {isLoggedIn ? 'Search News' : 'Login Required'}
+                </button>
+
+                {/* User Status Info */}
+                {isLoggedIn && (
+                    <div style={{
+                        marginTop: '1rem',
+                        padding: '0.75rem',
+                        background: isAdmin ? '#fff0f0' : '#f8f8f8',
+                        color: isAdmin ? '#cc0000' : '#666',
+                        textAlign: 'center',
+                        border: isAdmin ? '1px solid #cc0000' : '1px solid #e0e0e0',
+                        fontSize: '0.85rem',
+                        fontWeight: '600',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                    }}>
+                        {isAdmin ? `ADMIN USER (${userDisplayName}) - ALL FEATURES AVAILABLE` : `STANDARD USER (${userDisplayName}) - BASIC FEATURES ONLY`}
+                    </div>
+                )}
             </form>
         </div>
     );
-
 }

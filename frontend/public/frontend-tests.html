@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend React App Test Cases</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+        .test-category {
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+        .test-category h2 {
+            background: #007bff;
+            color: white;
+            margin: 0;
+            padding: 15px;
+            font-size: 18px;
+        }
+        .test-case {
+            border-bottom: 1px solid #eee;
+            padding: 20px;
+            background: #fafafa;
+        }
+        .test-case:last-child {
+            border-bottom: none;
+        }
+        .test-case h3 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .description {
+            margin: 10px 0;
+            color: #666;
+            line-height: 1.5;
+        }
+        .expected {
+            background: #e8f5e8;
+            border-left: 4px solid #28a745;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .steps {
+            background: #f8f9fa;
+            border-left: 4px solid #6c757d;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .steps ol {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.secondary {
+            background: #6c757d;
+        }
+        .test-button.secondary:hover {
+            background: #545b62;
+        }
+        .status-indicator {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-manual {
+            background: #ffc107;
+            color: #212529;
+        }
+        .status-interactive {
+            background: #17a2b8;
+            color: white;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #856404;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+        .back-link a {
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 0 15px;
+        }
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+        .prerequisite {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Frontend React App Test Cases</h1>
+        <div class="subtitle">Interactive Test Suite for News Reader Application</div>
+        
+        <div class="prerequisite">
+            <strong>Prerequisites:</strong> 
+            <ul>
+                <li>Backend server running on <code>localhost:4000</code></li>
+                <li>Frontend React app running on <code>localhost:3000</code></li>
+                <li>Both servers accessible and communicating properly</li>
+            </ul>
+        </div>
+
+        <!-- Authentication & User Management Tests -->
+        <div class="test-category">
+            <h2>🔐 Authentication & User Management</h2>
+            
+            <div class="test-case">
+                <h3>Admin User Query Submission <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> User can submit a new query as admin - Articles update, and query appears in saved queries list.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Log in as admin (username: admin, password: admin)</li>
+                        <li>Create a new query (e.g., "Test Admin Query", search: "sports")</li>
+                        <li>Submit the query</li>
+                        <li>Verify articles load with sports content</li>
+                        <li>Check that the new query appears in saved queries list</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> Query successfully created, articles update with relevant content, new query visible in saved queries list.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Open React App</a>
+            </div>
+
+            <div class="test-case">
+                <h3>Guest User Query Limits <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> User can submit a new query as guest (up to 3 only) - Guest can create only 3 queries; cannot add more.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Ensure you're not logged in (logout if needed)</li>
+                        <li>Create 3 different queries as a guest user</li>
+                        <li>Try to create a 4th query</li>
+                        <li>Verify you receive an alert blocking the creation</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> First 3 queries created successfully. 4th query attempt shows alert and is blocked.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Guest Limits</a>
+            </div>
+
+            <div class="test-case">
+                <h3>Unauthenticated Query Creation Block <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> Unauthenticated user cannot create new queries (should see alert and be blocked) - When not logged in, user receives an alert when attempting to create queries.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Ensure you're completely logged out</li>
+                        <li>Try to create a new query</li>
+                        <li>Verify alert appears blocking query creation</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> Alert message appears preventing query creation when not authenticated.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Unauthenticated Block</a>
+            </div>
+
+            <div class="test-case">
+                <h3>Login/Logout State Management <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> Logout/login switches app state appropriately - After logout, lose access to create queries; after login, regain appropriate access.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Log in as admin</li>
+                        <li>Note available features (query creation, advanced fields)</li>
+                        <li>Log out</li>
+                        <li>Try to create a query (should be blocked)</li>
+                        <li>Log back in</li>
+                        <li>Verify features are restored</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> App state changes appropriately with login status. Features disabled on logout, re-enabled on login.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Login State</a>
+            </div>
+        </div>
+
+        <!-- Query Execution & Management Tests -->
+        <div class="test-category">
+            <h2>🔍 Query Execution & Management</h2>
+            
+            <div class="test-case">
+                <h3>Unauthenticated Query Execution <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> User can run existing queries when not logged in - Can execute but not create queries.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Ensure some queries exist in the saved queries list</li>
+                        <li>Log out (if logged in)</li>
+                        <li>Click on an existing saved query</li>
+                        <li>Verify articles load for that query</li>
+                        <li>Try to create a new query (should be blocked)</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> Existing queries can be executed and load articles. New query creation is blocked.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Query Execution</a>
+            </div>
+
+            <div class="test-case">
+                <h3>Query Persistence After Refresh <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> Saved queries persist after browser refresh - After refresh, previously saved queries remain.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Note the current saved queries list</li>
+                        <li>Refresh the browser page (F5 or Ctrl+R)</li>
+                        <li>Verify all saved queries are still visible</li>
+                        <li>Test that queries still work by clicking one</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> All saved queries remain after refresh and are fully functional.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Persistence</a>
+                <button class="test-button secondary" onclick="location.reload()">Refresh This Page</button>
+            </div>
+
+            <div class="test-case">
+                <h3>Query List Updates <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> Saved query list updates when a new query is submitted - New queries appear at the top; list order correct.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Log in as admin</li>
+                        <li>Note the current order of saved queries</li>
+                        <li>Create a new query with a distinctive name</li>
+                        <li>Verify the new query appears at the top of the list</li>
+                        <li>Check that the order of other queries is preserved</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> New query appears at the top of the saved queries list. Previous queries maintain their relative order.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test List Updates</a>
+            </div>
+
+            <div class="test-case">
+                <h3>Query Selection & Highlighting <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> Clicking a saved query updates articles list and highlights the query - The right articles load; UI highlights selected query.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Ensure multiple queries exist in saved queries list</li>
+                        <li>Click on a specific saved query</li>
+                        <li>Verify articles update to match that query's search terms</li>
+                        <li>Check that the clicked query is visually highlighted</li>
+                        <li>Click a different query and verify highlight moves</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> Articles update to match selected query. Selected query is visually highlighted in the list.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Query Selection</a>
+            </div>
+        </div>
+
+        <!-- Admin Features Tests -->
+        <div class="test-category">
+            <h2>👑 Admin-Only Features</h2>
+            
+            <div class="test-case">
+                <h3>Admin Advanced Query Fields <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> Admin can access advanced query fields ("page" and "sortBy") - These fields visible only for admin user.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Log out (if logged in)</li>
+                        <li>Check the query form - note which fields are visible</li>
+                        <li>Log in as admin (username: admin, password: admin)</li>
+                        <li>Check the query form again</li>
+                        <li>Verify "page" and "sortBy" fields are now visible</li>
+                        <li>Test creating a query with these advanced fields</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> Advanced fields (page, sortBy) only visible when logged in as admin. Fields work correctly when used.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Admin Fields</a>
+            </div>
+        </div>
+
+        <!-- Error Handling & Edge Cases -->
+        <div class="test-category">
+            <h2>⚠️ Error Handling & Edge Cases</h2>
+            
+            <div class="test-case">
+                <h3>Guest Query Limit Alert <span class="status-indicator status-interactive">INTERACTIVE</span></h3>
+                <div class="description">
+                    <strong>Test:</strong> Guest cannot add more than 3 queries (should see alert and be blocked) - When 3 queries exist, guest user receives an alert and cannot add more.
+                </div>
+                <div class="warning">
+                    <strong>Setup Required:</strong> This test requires exactly 3 guest queries to exist. You may need to clear queries and recreate them.
+                </div>
+                <div class="steps">
+                    <strong>Test Steps:</strong>
+                    <ol>
+                        <li>Ensure you're logged out</li>
+                        <li>Create exactly 3 queries as a guest</li>
+                        <li>Try to create a 4th query</li>
+                        <li>Verify alert appears and creation is blocked</li>
+                        <li>Test that existing queries still work</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Expected Result:</strong> Alert message appears when trying to create 4th query. Query creation is prevented. Existing queries remain functional.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Test Guest Limit Alert</a>
+                <button class="test-button secondary" onclick="clearQueriesForTest()">Clear Queries (Test Helper)</button>
+            </div>
+        </div>
+
+        <!-- Manual Test Instructions -->
+        <div class="test-category">
+            <h2>📋 Comprehensive Test Checklist</h2>
+            
+            <div class="test-case">
+                <h3>Complete Frontend Test Sequence <span class="status-indicator status-manual">MANUAL</span></h3>
+                <div class="description">
+                    <strong>Complete Test Sequence:</strong> Follow this checklist to test all frontend functionality systematically.
+                </div>
+                <div class="steps">
+                    <strong>Full Test Checklist:</strong>
+                    <ol>
+                        <li>✅ Start with fresh browser session</li>
+                        <li>✅ Test unauthenticated state (no query creation)</li>
+                        <li>✅ Execute existing queries without login</li>
+                        <li>✅ Login as admin, verify advanced fields appear</li>
+                        <li>✅ Create admin query with advanced fields</li>
+                        <li>✅ Verify query appears at top of list</li>
+                        <li>✅ Test query selection and highlighting</li>
+                        <li>✅ Logout, verify advanced fields disappear</li>
+                        <li>✅ Create 3 guest queries</li>
+                        <li>✅ Try to create 4th query (should be blocked)</li>
+                        <li>✅ Refresh browser, verify queries persist</li>
+                        <li>✅ Test all saved queries still work</li>
+                        <li>✅ Test login/logout state changes</li>
+                    </ol>
+                </div>
+                <div class="expected">
+                    <strong>Success Criteria:</strong> All functionality works as expected. No errors in browser console. Smooth user experience throughout.
+                </div>
+                <a href="http://localhost:3000" class="test-button" target="_blank">Start Full Test</a>
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="http://localhost:3000">← Back to News Reader App</a>
+            <a href="api-tests.html">Backend API Tests</a>
+            <a href="#" onclick="window.close()">Close Test Page</a>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to clear queries for testing
+        async function clearQueriesForTest() {
+            if (confirm('This will clear all saved queries. Continue?')) {
+                try {
+                    const response = await fetch('http://localhost:4000/queries', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify([])
+                    });
+                    
+                    if (response.ok) {
+                        alert('Queries cleared successfully. Refresh the React app to see changes.');
+                    } else {
+                        alert('Failed to clear queries. Check if backend is running.');
+                    }
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+
+        // Add visual indicators for test progress
+        function markTestComplete(testElement) {
+            const button = testElement.querySelector('.test-button');
+            button.style.background = '#28a745';
+            button.innerHTML = '✅ Test Completed';
+        }
+
+        // Auto-refresh reminder
+        setInterval(() => {
+            const reminder = document.createElement('div');
+            reminder.style.position = 'fixed';
+            reminder.style.top = '10px';
+            reminder.style.right = '10px';
+            reminder.style.background = '#17a2b8';
+            reminder.style.color = 'white';
+            reminder.style.padding = '10px';
+            reminder.style.borderRadius = '5px';
+            reminder.style.fontSize = '12px';
+            reminder.innerHTML = 'Remember to test browser refresh!';
+            document.body.appendChild(reminder);
+            
+            setTimeout(() => {
+                if (reminder.parentNode) {
+                    reminder.parentNode.removeChild(reminder);
+                }
+            }, 3000);
+        }, 300000); // Show reminder every 5 minutes
+    </script>
+</body>
+</html>
