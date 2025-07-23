@@ -1,8 +1,13 @@
 export function LoginForm(params) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    params.login();
+  };
+
   return (
     <div>
       <h3>Login Form</h3>
-      <form>
+      <form onSubmit={handleSubmit}>
         <input 
           type="text" 
           placeholder="Username"
@@ -15,9 +20,11 @@ export function LoginForm(params) {
           value={params.credentials?.password || ''}
           onChange={(e) => params.setCredentials({...params.credentials, password: e.target.value})}
         />
-        <button type="submit">Login</button>
+        <button type="submit">{params.currentUser ? 'Logout' : 'Login'}</button>
       </form>
+      {params.currentUser && (
+        <p>Logged in as: {params.currentUser.user}</p>
+      )}
     </div>
   );
 }
-// Fixed

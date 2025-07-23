@@ -1,9 +1,10 @@
 import express from "express";
-import env from "../../../config.js";
+import env from "../../config.js";
 
 
 const router = express.Router();
-const apiKey = "4c71d14149ec493791cd9371dca241a5"
+
+const apiKey = env.APIKEY;
 if(!apiKey){
   console.log("Please set the API_KEY environment variable with a valid newsapi.org apiKey and restart the server!");
   process.exit(0);
