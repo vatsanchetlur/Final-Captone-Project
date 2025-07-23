@@ -9,10 +9,10 @@ export function NewsReader() {
   const [query, setQuery] = useState(exampleQuery); // latest query send to newsapi
   const [data, setData] = useState(exampleData);   // current data returned from newsapi
   const [queryFormObject, setQueryFormObject] = useState({ ...exampleQuery });
-  const [savedQueries, setSavedQueries] = useState([]); // <-- keep this state
   const [currentUser, setCurrentUser] = useState(null);
   const [credentials, setCredentials] = useState({ user: "", password: "" });
   const urlNews="/news"
+  const [savedQueries, setSavedQueries] = useState([{ ...exampleQuery }]);
   const urlQueries = "/queries"
   const urlUsersAuth = "/users/authenticate"
 
@@ -86,6 +86,15 @@ export function NewsReader() {
     setQuery(selectedQuery);
   }
 
+  // clear button for saved query
+  function onClearQueries() {
+    setSavedQueries([]);
+    saveQueryList([]);
+    setData({}); // Clear the articles data
+    setQuery({}); // Clear the current query
+    setQueryFormObject({}); // Clear the query form
+  }
+
 
   function currentUserMatches(user) {
     if (currentUser) {
@@ -98,7 +107,12 @@ export function NewsReader() {
     return false;
   }
 
+
   function onFormSubmit(queryObject) {
+    if (currentUser === null){
+      alert("Log in if you want to create new queries!")
+      return;
+    }
 
     if (savedQueries.length >= 3 && currentUserMatches("guest")) {
       alert("guest users cannot submit new queries once saved query count is 3 or greater!")
@@ -115,31 +129,30 @@ export function NewsReader() {
     saveQueryList(newSavedQueries);
     setSavedQueries(newSavedQueries);
     setQuery(queryObject);
+
   }
 
   async function getNews(queryObject) {
-    if (!queryObject.q) {
-      setData({});
-      return;
-    }
+  if (queryObject.q) {
     try {
-      const response = await fetch("/news", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(queryObject)
+      const response = await fetch(urlNews, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(queryObject),
       });
+
       if (!response.ok) {
-        throw new Error(`Network response was not ok: ${response.statusText}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const responseData = await response.json();
-      setData(responseData);
+      const data = await response.json();
+      setData(data);
     } catch (error) {
-      console.error("Error fetching news:", error);
-      setData({});
+      console.error('Error fetching news:', error);
     }
+  } else {
+    setData({});
   }
+}
 
   return (
     <div>
@@ -161,7 +174,9 @@ export function NewsReader() {
             <span className='title'>Saved Queries</span>
             <SavedQueries 
               savedQueries={savedQueries}
-              selectedQueryName={query.queryName} />
+              selectedQueryName={query.queryName}
+              onQuerySelect={onSavedQuerySelect}
+              onClearQueries={onClearQueries} />
           </div>
           <div className="box">
             <span className='title'>Articles List</span>
@@ -172,3 +187,5 @@ export function NewsReader() {
     </div>
   )
 }
+
+

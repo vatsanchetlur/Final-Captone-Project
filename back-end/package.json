@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "mongodb": "/opt/homebrew/bin/mongod",
+    "mongodb": "/opt/homebrew/bin/mongod --dbpath ./data/db",
     "mongosh": "/opt/homebrew/bin/mongosh"
   },
   "keywords": [],

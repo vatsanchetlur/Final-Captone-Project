@@ -1,8 +1,9 @@
 import express from "express";
-import { connect } from './back-end/routes/users/db.js';
-import newsRouter from './back-end/routes/news/news.js';
-import usersRouter from './back-end/routes/users/users.js';
-import queriesRouter from './back-end/routes/queries/queries.js';
+import { connect } from './routes/users/db.js';
+import newsRouter from './routes/news/news.js';
+import usersRouter from './routes/users/users.js';
+import queriesRouter from './routes/queries/queries.js';
+
 
 const app = express();
 const port = process.env.PORT || 4000; 

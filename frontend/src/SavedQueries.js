@@ -3,6 +3,12 @@ export function SavedQueries(params) {
   function onSavedQueryClick(savedQuery){
     params.onQuerySelect(savedQuery);
   }
+//clear params
+  function onClearQueries() {
+    if (params.onClearQueries) {
+      params.onClearQueries();
+    }
+  }
 
   function getQueries() {
     return params.savedQueries.map((item, idx) => {
@@ -22,6 +28,7 @@ export function SavedQueries(params) {
           ? getQueries()
           : <li>No Saved Queries, Yet!</li>
         }</ul>
+        <button onClick={onClearQueries}>Clear All Queries</button>
       </div>
     )
   
