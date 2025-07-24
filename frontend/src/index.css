@@ -828,9 +828,13 @@ body {
   background: #f8f8f8;
   border: 1px solid #e0e0e0;
   border-top: 3px solid #cc0000;
-  padding: 2rem;
-  margin: 2rem 0;
+  padding: 1rem 1.5rem;
+  margin: 2rem auto;
   text-align: center;
+  max-width: 340px;
+  min-width: 200px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .test-links h3 {
@@ -1238,4 +1242,10 @@ body {
     border-radius: 10px;
     margin-top: 10px;
   }
+}
+
+/* Add vertical scrollbar to Search News section only */
+.main-content > div:first-child .card-content {
+  max-height: 400px;
+  overflow-y: auto;
 }
