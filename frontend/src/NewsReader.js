@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { exampleQuery ,exampleData } from './data';
 import { SavedQueries } from './SavedQueries';
 import { LoginForm } from './LoginForm';
+import { CustomModal } from './CustomModal';
+import { LiveTickerBar } from './LiveTickerBar';
+import logo from './assets/Let Me Ask GPT 1.jpeg';
 
 export function NewsReader() {
   const [query, setQuery] = useState(exampleQuery); // latest query send to newsapi
@@ -12,6 +15,33 @@ export function NewsReader() {
   const [currentUser, setCurrentUser] = useState(null);
   const [credentials, setCredentials] = useState({ user: "", password: "" });
   const [isLoadingArticles, setIsLoadingArticles] = useState(false);
+  
+  // Modal state management
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'info',
+    onConfirm: null,
+    showCancel: false
+  });
+  
+  // Helper function to show modal
+  const showModal = (title, message, type = 'info', onConfirm = null, showCancel = false) => {
+    setModal({
+      isOpen: true,
+      title,
+      message,
+      type,
+      onConfirm,
+      showCancel
+    });
+  };
+  
+  const closeModal = () => {
+    setModal(prev => ({ ...prev, isOpen: false }));
+  };
+
   const urlNews="/news"
   const [savedQueries, setSavedQueries] = useState([{ ...exampleQuery }]);
   const urlQueries = "/queries"
@@ -57,7 +87,11 @@ export function NewsReader() {
         setCurrentUser({ ...credentials });
         setCredentials({ user: "", password: "" });
       } else {
-        alert("Error during authentication! " + credentials.user + "/" + credentials.password);
+        showModal(
+          'Login Failed',
+          `We couldn't authenticate your credentials.\n\nUsername: ${credentials.user}\n\nPlease check your username and password and try again.`,
+          'error'
+        );
         setCurrentUser(null);
       }
     } catch (error) {
@@ -98,6 +132,29 @@ export function NewsReader() {
     setQueryFormObject({}); // Clear the query form
   }
 
+  // delete individual saved query
+  function onDeleteQuery(queryToDelete) {
+    showModal(
+      'Delete Query',
+      `Are you sure you want to delete "${queryToDelete.queryName}"?\n\nThis will permanently remove this saved search from your collection.\n\nThis action cannot be undone.`,
+      'error',
+      () => {
+        const updatedQueries = savedQueries.filter(query => 
+          query.queryName !== queryToDelete.queryName
+        );
+        setSavedQueries(updatedQueries);
+        saveQueryList(updatedQueries);
+        
+        // If the deleted query was the currently selected one, clear the current display
+        if (query.queryName === queryToDelete.queryName) {
+          setData({});
+          setQuery({});
+          setQueryFormObject({});
+        }
+      },
+      true
+    );
+  }
 
   function currentUserMatches(user) {
     if (currentUser) {
@@ -113,12 +170,20 @@ export function NewsReader() {
 
   function onFormSubmit(queryObject) {
     if (currentUser === null){
-      alert("Log in if you want to create new queries!")
+      showModal(
+        'Login Required',
+        'You need to be logged in to create and save new search queries.\n\nPlease log in using the form on the left to continue.',
+        'warning'
+      );
       return;
     }
 
     if (savedQueries.length >= 3 && currentUserMatches("guest")) {
-      alert("guest users cannot submit new queries once saved query count is 3 or greater!")
+      showModal(
+        'Query Limit Reached',
+        `Guest users can only save up to 3 search queries.\n\nYou currently have ${savedQueries.length} saved queries.\n\nPlease delete some existing queries or contact support to upgrade your account.`,
+        'warning'
+      );
       return;
     }
     let newSavedQueries = [];
@@ -193,7 +258,18 @@ export function NewsReader() {
 
         {/* Main Header */}
         <div className="header-main">
-          <h1>NewsDash</h1>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img 
+              src={logo} 
+              alt="NewsDash Logo" 
+              style={{
+                height: '100px',
+                width: 'auto',
+                objectFit: 'contain'
+              }}
+            />
+            <h1 style={{ margin: 0 }}>NewsDash</h1>
+          </div>
           <nav className="header-nav">
             <a href="#" className="nav-item">World</a>
             <a href="#" className="nav-item">Politics</a>
@@ -224,7 +300,7 @@ export function NewsReader() {
       <div className="app-container">
         {/* Main Content Grid */}
         <section className="main-content">
-          {/* Query Form */}
+          {/* Query Form - Left Side */}
           <div className="card">
             <div className="card-title">Search News</div>
             <div className="card-content">
@@ -236,13 +312,13 @@ export function NewsReader() {
             </div>
           </div>
 
-          {/* Articles List */}
+          {/* Articles List - Center (More Space) */}
           <div className="card">
             <div className="card-title">Latest Headlines</div>
             <Articles query={query} data={data} loading={isLoadingArticles} />
           </div>
 
-          {/* Saved Queries */}
+          {/* Saved Queries - Right Side */}
           <div className="card">
             <div className="card-title">Saved Searches</div>
             <div className="card-content">
@@ -250,7 +326,8 @@ export function NewsReader() {
                 savedQueries={savedQueries}
                 selectedQueryName={query.queryName}
                 onQuerySelect={onSavedQuerySelect}
-                onClearQueries={onClearQueries} />
+                onClearQueries={onClearQueries}
+                onDeleteQuery={onDeleteQuery} />
             </div>
           </div>
         </section>
@@ -277,7 +354,25 @@ export function NewsReader() {
             </a>
           </div>
         </div>
+        
+        {/* Live Ticker Bar */}
+        <div className="ticker-container">
+          <LiveTickerBar />
+        </div>
       </div>
+
+      {/* Custom Modal Component */}
+      {modal.isOpen && (
+        <CustomModal 
+          isOpen={modal.isOpen}
+          title={modal.title}
+          message={modal.message}
+          type={modal.type}
+          onConfirm={modal.onConfirm}
+          onClose={closeModal}
+          showCancel={modal.showCancel}
+        />
+      )}
     </div>
   )
 }
