@@ -10,16 +10,17 @@ if(!apiKey){
   process.exit(0);
 }
 const baseUrl = 'https://newsapi.org/v2/top-headlines';
+// const baseUrl = 'https://newsapi.org/v2/everything';
 
 function filterValidNewsApiParams(queryObject) {
     // Only include parameters that are valid for NewsAPI top-headlines endpoint
     const validParams = {};
     
-    // Basic search parameters
-    if (queryObject.q) validParams.q = queryObject.q;
-    if (queryObject.country) validParams.country = queryObject.country;
-    if (queryObject.category) validParams.category = queryObject.category;
-    if (queryObject.sources) validParams.sources = queryObject.sources;
+    // Basic search parameters - only include if they have actual values (not empty strings)
+    if (queryObject.q && queryObject.q.trim() !== '') validParams.q = queryObject.q.trim();
+    if (queryObject.country && queryObject.country.trim() !== '') validParams.country = queryObject.country.trim();
+    if (queryObject.category && queryObject.category.trim() !== '') validParams.category = queryObject.category.trim();
+    if (queryObject.sources && queryObject.sources.trim() !== '') validParams.sources = queryObject.sources.trim();
     
     // Advanced parameters
     if (queryObject.pageSize && queryObject.pageSize <= 100) {
@@ -27,13 +28,16 @@ function filterValidNewsApiParams(queryObject) {
     }
     if (queryObject.page) validParams.page = queryObject.page;
     
-    // Language parameter is NOT supported with keyword searches (q parameter) in top-headlines
-    // Only include language if we're NOT doing a keyword search
-    if (queryObject.language && !queryObject.q) {
-        validParams.language = queryObject.language;
+    // Language parameter handling:
+    // 1. NOT supported with keyword searches (q parameter) in top-headlines
+    // 2. NOT recommended with country parameter (country already implies language)
+    // Only include language if we're doing a pure keyword search without country
+    if (queryObject.language && queryObject.language.trim() !== '' && 
+        !validParams.q && !validParams.country) {
+        validParams.language = queryObject.language.trim();
     }
     
-    if (queryObject.sortBy) validParams.sortBy = queryObject.sortBy;
+    if (queryObject.sortBy && queryObject.sortBy.trim() !== '') validParams.sortBy = queryObject.sortBy.trim();
     
     console.log('Original parameters:', queryObject);
     console.log('Filtered parameters for NewsAPI:', validParams);
@@ -42,6 +46,7 @@ function filterValidNewsApiParams(queryObject) {
 
 function addApiKey(queryObject){
     const baseUrl = 'https://newsapi.org/v2/top-headlines';
+    // const baseUrl = 'https://newsapi.org/v2/everything';
     return {...queryObject, apiKey: apiKey}
 }
 
