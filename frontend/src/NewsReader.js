@@ -133,7 +133,6 @@ export function NewsReader() {
   }
 
   async function getNews(queryObject) {
-  if (queryObject.q) {
     try {
       const response = await fetch(urlNews, {
         method: 'POST',
@@ -146,46 +145,70 @@ export function NewsReader() {
       }
       const data = await response.json();
       setData(data);
+      
+      // Update the saved query with the results count
+      if (data.totalResults !== undefined) {
+        setSavedQueries(prevSavedQueries => {
+          return prevSavedQueries.map(savedQuery => {
+            if (savedQuery.queryName === queryObject.queryName) {
+              return { ...savedQuery, totalResults: data.totalResults };
+            }
+            return savedQuery;
+          });
+        });
+      }
     } catch (error) {
       console.error('Error fetching news:', error);
     }
-  } else {
-    setData({});
   }
-}
 
   return (
-    <div>
-        <LoginForm login={login}
-          credentials={credentials}
-          currentUser={currentUser}
-          setCredentials={setCredentials} />
-      <div >
-        <section className="parent" >
-          <div className="box">
-            <span className='title'>Query Form</span>
+    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Main Content */}
+      <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr 300px', gap: '20px' }}>
+        {/* Left Sidebar */}
+        <div>
+          {/* Search Section */}
+          <div className="sidebar-section">
+            <h2>Search News</h2>
             <QueryForm
               currentUser={currentUser}
               setFormObject={setQueryFormObject}
               formObject={queryFormObject}
-              submitToParent={onFormSubmit} />
+              submitToParent={onFormSubmit} 
+            />
           </div>
-          <div className="box">
-            <span className='title'>Saved Queries</span>
+
+          {/* Saved Searches Section */}
+          <div className="sidebar-section">
+            <h2>Saved Searches</h2>
             <SavedQueries 
               savedQueries={savedQueries}
               selectedQueryName={query.queryName}
               onQuerySelect={onSavedQuerySelect}
-              onClearQueries={onClearQueries} />
+              onClearQueries={onClearQueries} 
+            />
           </div>
-          <div className="box">
-            <span className='title'>Articles List</span>
-            <Articles query={query} data={data} />
-          </div>
-        </section>
+        </div>
+
+        {/* Main Articles Area */}
+        <div>
+          <Articles query={query} data={data} />
+        </div>
+
+        {/* Right Sidebar */}
+        <div>
+          {/* Login Section */}
+          <LoginForm 
+            login={login}
+            credentials={credentials}
+            currentUser={currentUser}
+            setCredentials={setCredentials} 
+          />
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
 

@@ -4,16 +4,22 @@
   "private": true,
   "proxy": "http://localhost:4000",
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@lmig/lmds-react": "^5.0.0",
+    "@lmig/lmds-styles": "^5.0.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "tailwindcss": "^3.4.17",
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-private-property-in-object":"*"
+    "@babel/plugin-proposal-private-property-in-object": "*",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6"
   },
   "scripts": {
     "start": "react-scripts start",

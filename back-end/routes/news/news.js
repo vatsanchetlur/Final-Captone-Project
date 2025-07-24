@@ -12,12 +12,20 @@ if(!apiKey){
 const baseUrl = 'https://newsapi.org/v2/top-headlines';
 
 function addApiKey(queryObject){
-    const baseUrl = 'https://newsapi.org/v2/top-headlines';
-    return {...queryObject, apiKey: apiKey}
+    // Use 'everything' endpoint for search queries with 'q' parameter
+    // Use 'top-headlines' for country/category based queries
+    const hasSearchQuery = queryObject.q && queryObject.q.trim() !== '';
+    const baseUrl = hasSearchQuery ? 
+        'https://newsapi.org/v2/everything' : 
+        'https://newsapi.org/v2/top-headlines';
+    return {...queryObject, apiKey: apiKey, baseUrl: baseUrl}
 }
 
 export function createUrlFromQueryObject(queryObjectWithApiKey) {
-    const queryString = new URLSearchParams(queryObjectWithApiKey).toString();
+    const baseUrl = queryObjectWithApiKey.baseUrl || 'https://newsapi.org/v2/top-headlines';
+    // Remove baseUrl from query parameters
+    const {baseUrl: _, ...queryParams} = queryObjectWithApiKey;
+    const queryString = new URLSearchParams(queryParams).toString();
     const url = baseUrl + "?" + queryString;
     return url;
 }
