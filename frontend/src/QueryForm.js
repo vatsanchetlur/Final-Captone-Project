@@ -1,4 +1,32 @@
+import { CustomModal } from './CustomModal';
+import { useState } from 'react';
+
 export function QueryForm(params) {
+    // Modal state management
+    const [modal, setModal] = useState({
+        isOpen: false,
+        title: '',
+        message: '',
+        type: 'info',
+        onConfirm: null,
+        showCancel: false
+    });
+    
+    // Helper function to show modal
+    const showModal = (title, message, type = 'info', onConfirm = null, showCancel = false) => {
+        setModal({
+            isOpen: true,
+            title,
+            message,
+            type,
+            onConfirm,
+            showCancel
+        });
+    };
+    
+    const closeModal = () => {
+        setModal(prev => ({ ...prev, isOpen: false }));
+    };
 
     const handleChange = (event) => {
         let newQueryObject = { ...params.formObject };
@@ -11,13 +39,21 @@ export function QueryForm(params) {
         
         // Check if user is logged in for creation
         if (!params.currentUser) {
-            alert("Please log in to create new searches");
+            showModal(
+                'Login Required',
+                'You need to be logged in to create and save new search queries.\n\nPlease use the login form above to sign in first.',
+                'warning'
+            );
             return;
         }
 
         // Validation
         if (!params.formObject.queryName || params.formObject.queryName.trim() === '') {
-            alert("Please provide a name for the search");
+            showModal(
+                'Query Name Required',
+                'Please provide a descriptive name for your search query.\n\nThis helps you identify it in your saved searches later.',
+                'warning'
+            );
             return;
         }
 
@@ -28,13 +64,21 @@ export function QueryForm(params) {
 
         // Check for invalid combinations
         if (hasKeywords && hasCountry) {
-            alert("NewsAPI doesn't allow combining search keywords with country. Please use either keywords OR country+category, but not both.");
+            showModal(
+                'Invalid Search Combination',
+                'NewsAPI doesn\'t support combining search keywords with country selection.\n\nChoose one approach:\n• Use keywords only (for global search)\n• Use country + category (for regional headlines)\n\nPlease adjust your search parameters and try again.',
+                'error'
+            );
             return;
         }
 
         // Must have either keywords OR country (with optional category)
         if (!hasKeywords && !hasCountry) {
-            alert("Please provide either search keywords OR select a country for headlines");
+            showModal(
+                'Search Parameters Required',
+                'Please provide search criteria:\n\nOption 1: Enter keywords to search globally\nOption 2: Select a country for regional headlines\n\nAt least one search parameter is required to continue.',
+                'warning'
+            );
             return;
         }
 
@@ -256,6 +300,19 @@ export function QueryForm(params) {
                     </div>
                 )}
             </form>
+
+            {/* Modal Component - for alerts and confirmations */}
+            {modal.isOpen && (
+                <CustomModal 
+                    isOpen={modal.isOpen} 
+                    title={modal.title} 
+                    message={modal.message} 
+                    onClose={closeModal}
+                    onConfirm={modal.onConfirm}
+                    showCancel={modal.showCancel}
+                    type={modal.type}
+                />
+            )}
         </div>
     );
 }
