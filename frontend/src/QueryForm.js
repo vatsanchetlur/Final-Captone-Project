@@ -8,11 +8,11 @@ export function QueryForm(params) {
     function onSubmitClick(event) {
         event.preventDefault();
         if (!params.formObject.queryName) {
-            alert("please provide a name for the query!");
+            params.onError && params.onError("Please provide a name for the query!");
             return;
         }
         if (!params.formObject.q || params.formObject.q.length === 0) {
-            alert("please provide some text for the query field!");
+            params.onError && params.onError("Please provide some text for the query field!");
             return;
         }
         params.submitToParent(params.formObject);
