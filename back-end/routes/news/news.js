@@ -23,10 +23,26 @@ function addApiKey(queryObject){
 
 export function createUrlFromQueryObject(queryObjectWithApiKey) {
     const baseUrl = queryObjectWithApiKey.baseUrl || 'https://newsapi.org/v2/top-headlines';
-    // Remove baseUrl from query parameters
-    const {baseUrl: _, ...queryParams} = queryObjectWithApiKey;
-    const queryString = new URLSearchParams(queryParams).toString();
+    
+    // Define valid parameters for each endpoint
+    const everythingParams = ['q', 'sources', 'domains', 'excludeDomains', 'from', 'to', 'language', 'sortBy', 'pageSize', 'page', 'apiKey'];
+    const topHeadlinesParams = ['country', 'category', 'sources', 'q', 'pageSize', 'page', 'apiKey'];
+    
+    // Choose valid parameters based on endpoint
+    const isEverythingEndpoint = baseUrl.includes('everything');
+    const validParams = isEverythingEndpoint ? everythingParams : topHeadlinesParams;
+    
+    // Filter out invalid parameters
+    const filteredParams = {};
+    for (const [key, value] of Object.entries(queryObjectWithApiKey)) {
+        if (validParams.includes(key) && value !== undefined && value !== null) {
+            filteredParams[key] = value;
+        }
+    }
+    
+    const queryString = new URLSearchParams(filteredParams).toString();
     const url = baseUrl + "?" + queryString;
+    console.log('Generated NewsAPI URL:', url);
     return url;
 }
 
@@ -59,6 +75,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
     let query = req.body;
+    console.log('Received query from frontend:', query);
     let queryObjectWithApiKey = addApiKey(query);
     let url = createUrlFromQueryObject(queryObjectWithApiKey);
     let newsArticles = await fetchData(url);

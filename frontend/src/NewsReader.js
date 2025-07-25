@@ -44,7 +44,10 @@ export function NewsReader({ currentUser, credentials, setCredentials, login, on
   }, [urlNews, onError]);
 
   useEffect(() => {
-    getNews(query);
+    // Only fetch news if query has valid content
+    if (query && Object.keys(query).length > 0 && query.queryName) {
+      getNews(query);
+    }
   }, [query, getNews])
 
   useEffect(() => {
@@ -89,9 +92,10 @@ export function NewsReader({ currentUser, credentials, setCredentials, login, on
   function onClearQueries() {
     setSavedQueries([]);
     saveQueryList([]);
-    setData({}); // Clear the articles data
-    setQuery({}); // Clear the current query
-    setQueryFormObject({}); // Clear the query form
+    // Reset to initial state - load default top headlines
+    setQuery(exampleQuery);
+    setQueryFormObject({ ...exampleQuery });
+    // The useEffect will automatically fetch news for the default query
   }
 
   // delete individual saved query
